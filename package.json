@@ -5,7 +5,6 @@
   "main": "run.js",
   "dependencies": {
     "html-to-text": "^0.1.0",
-    "jsdom": "^1.0.0-pre.5",
     "request": "^2.40.0",
     "tough-cookie": "^0.12.1"
   },

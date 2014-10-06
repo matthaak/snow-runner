@@ -1,2 +1,3 @@
 .*.cookies
 node_modules/
+.idea/
