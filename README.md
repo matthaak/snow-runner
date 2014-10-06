@@ -1,1 +1,1 @@
-Run ServiceNow Background Scripts on the command line using Node.
+Run ServiceNow Background Scripts using node on the command line.
