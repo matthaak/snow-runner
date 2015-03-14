@@ -22,7 +22,8 @@ Example
 -------
     $ node run.js YWRtaW46YWRtaW4=@demo001 demo.js
 
-In the above example, "YWRtaW46YWRtaW4=" is "admin:admin" encoded (without quotes) using Base64.
+In the above example, "YWRtaW46YWRtaW4=" is "admin:admin" encoded (without quotes) using Base64. For it to work, you must first log into the demo001 instance and give the security_admin role to System Administrator.
 
-Note for this example to work, you must first log into the demo001 instance and give the security_admin role to System Administrator.
-
+    $ node run.js YWRtaW46YWRtaW4=@demo001 --scope 'x_acme_testapp' demo.js
+    
+The above example shows how to use the optional --scope parameter for Fuji and later instances. If --scope is not supplied, global scope is assumed.

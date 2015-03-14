@@ -23,7 +23,7 @@ var argv = require('minimist')(process.argv.slice(2));
 				'Example:\n' +
 				'   node run.js YWRtaW46YWRtaW4=@demo001 demo.js\n' +
 				'   (YWRtaW46YWRtaW4= is admin:admin encoded using Base64)\n' +
-		  	'Optionally, supply a as in:\n' +
+		  	'Optionally, supply a scope:\n' +
 			  '   node run.js YWRtaW46YWRtaW4=@demo001 --scope \'x_acme_testapp\' demo.js\n');
 	}
 
