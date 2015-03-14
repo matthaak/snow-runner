@@ -1,6 +1,7 @@
 var fs = require('fs');
 var request = require('request');
 var htmlToText = require('html-to-text');
+var argv = require('minimist')(process.argv.slice(2));
 
 (function() {
 
@@ -8,27 +9,28 @@ var htmlToText = require('html-to-text');
 		verbose : false
 	};
 
-	var argv2 = process.argv[2];
-	var argv3 = process.argv[3];
-	var argv4 = process.argv[4];
-	var suiteRunnerMode = (process.argv.length > 4 && argv3 === '--suite');
-	var eMode = (process.argv.length > 4 && argv3 === '-e');
+	var runFile = argv._[1];
+	var authInstanceArr;
 
-	var argv2m;
 	if (
 		process.argv.length < 4 ||
-			!(argv2m = argv2.match(/([A-Za-z0-9+/=]+)@([a-zA-Z0-9\-]+)/)) ||
-			(process.argv.length > 4 && !suiteRunnerMode && !eMode)
+			!(authInstanceArr = argv._[0].match(/([A-Za-z0-9+/=]+)@([a-zA-Z0-9\-]+)/)) ||
+			!(runFile || argv.e || argv.suite)
 		){
-		logFatal('Usage:\n   node run.js base64auth@instance script.js\n' +
-			'Example:\n   node run.js YWRtaW46YWRtaW4=@demo001 demo.js\n' +
-			'   (YWRtaW46YWRtaW4= is admin:admin encoded using Base64)');
+		logFatal(
+				'Usage:\n' +
+				'   node run.js base64auth@instance script.js\n' +
+				'Example:\n' +
+				'   node run.js YWRtaW46YWRtaW4=@demo001 demo.js\n' +
+				'   (YWRtaW46YWRtaW4= is admin:admin encoded using Base64)\n' +
+		  	'Optionally, supply a as in:\n' +
+			  '   node run.js YWRtaW46YWRtaW4=@demo001 --scope \'x_acme_testapp\' demo.js\n');
 	}
 
-	var authArr = (new Buffer(argv2m[1], 'base64')).toString().split(/:(.+)?/);
+	var authArr = (new Buffer(authInstanceArr[1], 'base64')).toString().split(/:(.+)?/);
 	conf.user = authArr[0];
 	conf.pass = authArr[1];
-	conf.instance = argv2m[2];
+	conf.instance = authInstanceArr[2];
 	conf.host = conf.instance + '.service-now.com';
 	conf.baseUrl = 'https://' + conf.host + '/';
 	conf.cookieFileName = '.snow-runner.' + conf.instance + '.cookies';
@@ -49,17 +51,17 @@ var htmlToText = require('html-to-text');
 	});
 
 	function getScript(onComplete) {
-		if (suiteRunnerMode) {
+		if (argv.suite) {
 			onComplete(
 				'gs.include("FP.Test.Runner");' +
-					'with(FP.Test.Runner){add(\'' + argv4 + '\');gs.print(\'\\n\'+run().output);}'
+					'with(FP.Test.Runner){add(\'' + argv.suite + '\');gs.print(\'\\n\'+run().output);}'
 			);
 
-		} else if (eMode) {
-			onComplete(argv4);
+		} else if (argv.e) {
+			onComplete(argv.e);
 
 		} else {
-			fs.readFile(argv3, function(err, data) {
+			fs.readFile(runFile, function(err, data) {
 				if (err) { logFatal(err); }
 				if (!data.length){
 					logFatal('Error: Script file is empty.');
@@ -75,8 +77,8 @@ var htmlToText = require('html-to-text');
 			function() { // onUnrecognized
 				runScriptUsingNewSession(script);
 			},
-			function(ck) { // onComplete
-				submit( ck, script,
+			function(ck, sysScope) { // onComplete
+				submit( ck, script, sysScope,
 					function() { // onForbidden
 						runScriptUsingNewSession(script);
 					},
@@ -94,12 +96,19 @@ var htmlToText = require('html-to-text');
 		request = request.defaults({ jar : cookieJar, followAllRedirects : true });
 		login( function() { // onComplete
 			elevate( function(ck) { // onComplete
-				submit( ck, script,
-					function() { // onForbidden
-						logFatal('\nError: Could not submit script due to security restriction.');
+				getForm(
+					function() { // onUnrecognized
+						logFatal('\nError: Did not recognize sys.scripts.do in new session.');
 					},
-					function() { // onComplete
-						saveCookies(cookieJar);
+					function(ck, sysScope) { // onComplete
+						submit( ck, script, sysScope,
+							function() { // onForbidden
+								logFatal('\nError: Could not submit script due to security restriction.');
+							},
+							function() { // onComplete
+								saveCookies(cookieJar);
+							}
+						);
 					}
 				);
 			});
@@ -183,8 +192,18 @@ var htmlToText = require('html-to-text');
 					// logFatal('\nError: Unrecognized page returned when loading sys.scripts.do.\n' + body);
 
 				} else {
+					var sysScope;
+					if (argv.scope) {
+						var m;
+						if ( (m = body.match(new RegExp("<option value=\"([a-f0-9]+)\">" + argv.scope + "</option>"))) ) {
+							sysScope = m[1];
+						} else {
+							logFatal('\nError: Scope \'' + argv.scope + '\' not recognized in sys.scripts.do form.\n');
+						}
+					}
+
 					logInfoLn('Success.');
-					onComplete(ckm[1]);
+					onComplete(ckm[1], sysScope);
 
 				}
 			}
@@ -193,12 +212,15 @@ var htmlToText = require('html-to-text');
 
 	}
 
-	function submit(ck, script, onForbidden, onComplete) {
+	function submit(ck, script, sysScript, onForbidden, onComplete) {
 		var formParms = {
 			sysparm_ck : ck,
 			script : script,
 			runscript : 'Run script'
 		};
+		if (sysScript) {
+			formParms.sys_scope = sysScript;
+		}
 		request.post(
 			conf.baseUrl + 'sys.scripts.do',
 			{form:formParms},
