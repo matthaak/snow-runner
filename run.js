@@ -37,7 +37,7 @@ var argv = require('minimist')(process.argv.slice(2));
 
 	fs.readFile(conf.cookieFileName, function(err, data) {
 		if (err) {
-			if (err.errno != 34) { logFatal(err); }
+			if (err.code !== 'ENOENT') { logFatal(err); }
 			getScript( function(script) {
 				runScriptUsingNewSession(script);
 			});

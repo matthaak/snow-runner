@@ -1,17 +1,26 @@
 {
-  "name": "SnowRunner",
-  "version": "0.0.1",
+  "name": "snowrunner",
+  "version": "0.0.2",
   "description": "SnowRunner",
   "main": "run.js",
   "dependencies": {
     "html-to-text": "^0.1.0",
     "request": "^2.40.0",
-    "tough-cookie": "^0.12.1"
+    "tough-cookie": "^0.12.1",
+    "minimist": "^1.1.0"
   },
   "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC"
+  "author": "Matthew Haak",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/matthaak/snow-runner.git"
+  },
+  "bugs": {
+    "url": "https://github.com/matthaak/snow-runner/issues"
+  },
+  "homepage": "https://github.com/matthaak/snow-runner#readme"
 }
