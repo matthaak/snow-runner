@@ -5,5 +5,5 @@ if [%2]==[] goto main
 set PIPE=%PIPE%.%2
 :main
 set PIPE=%PIPE%.tmp
-echo. > %PIPE%
+TYPE NUL > %PIPE%
 node %RUNNER_HOME%\tailf.js %PIPE% | node %RUNNER_HOME%\run.js %1 -i

@@ -8,8 +8,8 @@
     "request": "^2.40.0",
     "tough-cookie": "^0.12.1",
     "minimist": "^1.1.0",
-    "node.tail": "^0.0.3",
-    "agentkeepalive": "^2.0.3"
+    "agentkeepalive": "^2.0.3",
+    "node.tail": "^0.0.4"
   },
   "devDependencies": {},
   "scripts": {
