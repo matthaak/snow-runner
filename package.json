@@ -1,6 +1,6 @@
 {
   "name": "snowrunner",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "SnowRunner",
   "main": "run.js",
   "dependencies": {
