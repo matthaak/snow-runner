@@ -16,6 +16,8 @@ var argv = require('minimist')(process.argv.slice(2));
 // var pool = new https.Agent(); //Your pool/agent
 // request({url:"http://www.google.com", pool:pool });
 
+var runFile = argv._[1];
+
 if (
 	process.argv.length < 4 ||
 	!(authInstanceArr = argv._[0].match(/([A-Za-z0-9+/=]+)@([a-zA-Z0-9\-]+)/)) ||
@@ -36,7 +38,6 @@ var conf = {
 	interactive : !!argv.i
 };
 
-var runFile = argv._[1];
 var authInstanceArr;
 var scopeName = argv.scope || 'global';
 
