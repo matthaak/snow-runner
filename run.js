@@ -303,24 +303,26 @@ function getForm(onUnrecognized, onComplete) {
 				// logFatal('\nError: Unrecognized page returned when loading sys.scripts.do.\n' + body);
 
 			} else {
-				var sysScope;
-				// if (argv.scope) {
-				var m;
-				if ( (m = body.match(new RegExp("<option value=\"([a-f0-9]+)\">" + scopeName + "</option>"))) ) {
-					sysScope = m[1];
-				} else {
-					logFatal('\nError: Scope \'' + scopeName + '\' not recognized in sys.scripts.do form.\n');
-				}
-				// }
-
-				logInfoLn('Success.');
-				onComplete(ckm[1], sysScope);
-
+                var sysScope = getScopeOptionValue(body);
+                logInfoLn('Success.');
+                onComplete(ckm[1], sysScope);
 			}
 		}
 	);
 
+    function getScopeOptionValue(body) {
+        var regex = new RegExp("<option value=\"([a-f0-9]+)\">" + scopeName + "</option>");
+        var match = body.match(regex);
+        if (match) return match[1];
 
+        // In Fuji the option value for global is a sys_id, in Helsinki (and Geneva?) it is 'global'
+        // so the regex above fails to match.
+        // If we wanted global scope, return 'global'
+        if (scopeName === 'global') return 'global';
+
+        // Otherwise, the scope option value was not found, so fail
+        logFatal('\nError: Scope \'' + scopeName + '\' not recognized in sys.scripts.do form.\n');
+    }
 }
 
 function submit(ck, script, sysScope, onForbiddenOrUnrecognized, onComplete) {
