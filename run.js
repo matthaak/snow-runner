@@ -311,7 +311,7 @@ function getForm(onUnrecognized, onComplete) {
 	);
 
     function getScopeOptionValue(body) {
-        var regex = new RegExp("<option value=\"([a-f0-9]+)\">" + scopeName + "</option>");
+        var regex = new RegExp("<option.*value=\"([a-f0-9]+)\">" + scopeName + "</option>");
         var match = body.match(regex);
         if (match) return match[1];
 
