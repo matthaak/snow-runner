@@ -6,7 +6,7 @@
   "dependencies": {
     "html-to-text": "^0.1.0",
     "request": "^2.40.0",
-    "tough-cookie": "^0.12.1",
+    "tough-cookie": "^4.0.0",
     "minimist": "^1.1.0",
     "agentkeepalive": "^2.0.3",
     "node.tail": "^0.0.4"
